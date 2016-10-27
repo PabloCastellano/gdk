@@ -60,34 +60,34 @@ sudo mkdir -p /var/www/zip
 # install drupal
 sudo mkdir -p /var/www/html/
 cd /var/www/html/
-sudo wget http://ftp.drupal.org/files/projects/$DRUPAL
+sudo wget -c http://ftp.drupal.org/files/projects/$DRUPAL
 sudo tar zxf $DRUPAL
 sudo mv $DRUPAL ../zip/
 
 # Link symbolic
-sudo ln -s /var/www/html/drupal-* /var/www/html/${PROJECT}
+sudo ln -sf /var/www/html/drupal-* /var/www/html/${PROJECT}
 
 # Instal·lar moduls
 cd drupal-*/sites/all/modules/
 MODULS_LIST="fivestar-7.x-2.1 votingapi-7.x-2.12 front-7.x-2.4 diff-7.x-3.2 eu_cookie_compliance-7.x-1.14 spambot-7.x-1.4 devel-7.x-1.5 image-7.x-1.x-dev image_filter-7.x-1.0"
 for module in $MODULS_LIST
 do
-  sudo wget http://ftp.drupal.org/files/projects/${module}.tar.gz
+  sudo wget -c http://ftp.drupal.org/files/projects/${module}.tar.gz
   sudo tar zxf ${module}.tar.gz
   sudo mv ${module}.tar.gz ../../../../../zip/
 done
 
 # BD
 cd /var/www/html/
-sudo wget http://www.guifi.net/guifi66_devel.sql.gz
-echo "create database ${MYSQL_DB};" | mysql -u root -p${PASSWD}
+sudo wget -c http://www.guifi.net/guifi66_devel.sql.gz
+echo "create database IF NOT EXISTS ${MYSQL_DB};" | mysql -u root -p${PASSWD}
 echo "grant all on ${MYSQL_DB}.* to ${MYSQL_USER}@localhost identified by '${MYSQL_PASSWD}';" | mysql -u root -p${PASSWD}
 
 sudo gunzip guifi66_devel.sql.gz
 mysql -u root -p${PASSWD} ${MYSQL_DB} < guifi66_devel.sql
 
 cd drupal-*
-sudo mkdir {files,files/nanostation,tmp}
+sudo mkdir -p {files,files/nanostation,tmp}
 sudo chmod 777 {files,files/nanostation,tmp}
 
 # chown vagrant
@@ -97,3 +97,4 @@ sudo chown -R vagrant:vagrant /var/www
 cd /var/www/html/drupal-*/sites/default/
 sudo cp default.settings.php settings.php
 sudo sed -i "s|mysql://username:password@localhost/databasename|mysql://${MYSQL_USER}:${MYSQL_PASSWD}@localhost/${MYSQL_DB}|" settings.php
+echo "Done! You can now visit http://localhost:8280"
