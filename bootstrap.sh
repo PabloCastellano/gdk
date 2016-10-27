@@ -60,33 +60,33 @@ sudo mkdir -p /var/www/zip
 # install drupal
 sudo mkdir -p /var/www/html/
 cd /var/www/html/
-sudo wget http://ftp.drupal.org/files/projects/$DRUPAL
+sudo wget -c http://ftp.drupal.org/files/projects/$DRUPAL
 sudo tar zxf $DRUPAL
 sudo mv $DRUPAL ../zip/
 
 # Link symbolic
-sudo ln -s /var/www/html/drupal-6.37 /var/www/html/${PROJECT}
+sudo ln -sf /var/www/html/drupal-6.37 /var/www/html/${PROJECT}
 
 # Instal·lar moduls
 cd drupal-6.37/sites/all/modules/
 MODULS_LIST="webform-6.x-3.23 views-6.x-2.18 views_slideshow-6.x-2.4 i18n-6.x-1.10 schema-6.x-1.7 devel-6.x-1.28 potx-6.x-3.3 l10n_client-6.x-2.2 languageicons-6.x-2.1 language_sections-6.x-2.5 diff-6.x-2.3 captcha-6.x-2.7 captcha_pack-6.x-1.0-beta3 event-6.x-2.x-dev cck-6.x-2.10 fckeditor-6.x-2.4 image-6.x-1.2 image_filter-6.x-1.0 fivestar-6.x-1.21 votingapi-6.x-2.3"
 for module in $MODULS_LIST
 do
-  sudo wget http://ftp.drupal.org/files/projects/${module}.tar.gz
+  sudo wget -c http://ftp.drupal.org/files/projects/${module}.tar.gz
   sudo tar zxf ${module}.tar.gz
   sudo mv ${module}.tar.gz ../../../../../zip/
 done
 
 # BD
 cd /var/www/html/
-sudo wget http://www.guifi.net/guifi66_devel.sql.gz
-echo "create database ${MYSQL_DB};" | mysql -u root -p${PASSWD}
+sudo wget -c http://www.guifi.net/guifi66_devel.sql.gz
+echo "create database IF NOT EXISTS ${MYSQL_DB};" | mysql -u root -p${PASSWD}
 echo "grant all on ${MYSQL_DB}.* to ${MYSQL_USER}@localhost identified by '${MYSQL_PASSWD}';" | mysql -u root -p${PASSWD}
 
 sudo gunzip guifi66_devel.sql.gz
 mysql -u root -p${PASSWD} ${MYSQL_DB} < guifi66_devel.sql
 
-sudo mkdir drupal-6.37/{files,files/nanostation,tmp}
+sudo mkdir -p drupal-6.37/{files,files/nanostation,tmp}
 sudo chmod 777 drupal-6.37/{files,files/nanostation,tmp}
 
 # chown vagrant
@@ -96,3 +96,4 @@ sudo chown -R vagrant:vagrant /var/www
 cd /var/www/html/drupal-6.37/sites/default/
 sudo cp default.settings.php settings.php
 sudo sed -i "s|mysql://username:password@localhost/databasename|mysql://${MYSQL_USER}:${MYSQL_PASSWD}@localhost/${MYSQL_DB}|" settings.php
+echo "Done! You can now visit http://localhost:8280"
